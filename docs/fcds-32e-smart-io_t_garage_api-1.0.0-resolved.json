@@ -1,0 +1,456 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Smart IoT Garage API",
+    "description": "Backend APIs for ESP32, Flutter app, and AI/ML service",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local dev server"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register new user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/auth_register_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_201"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login and get tokens",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/auth_login_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vehicles": {
+      "get": {
+        "tags": [
+          "Vehicles"
+        ],
+        "summary": "Get all my vehicles",
+        "responses": {
+          "200": {
+            "description": "List of vehicles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/inline_response_200_1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Vehicles"
+        ],
+        "summary": "Register a vehicle",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/vehicles_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Vehicle registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_201_1"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/esp/detect": {
+      "post": {
+        "tags": [
+          "ESP32"
+        ],
+        "summary": "Send detection event from ESP32",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/esp_detect_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Detection result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/esp/barrier": {
+      "post": {
+        "tags": [
+          "ESP32"
+        ],
+        "summary": "Update barrier status",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/esp_barrier_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Barrier status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_3"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ml/recognize": {
+      "post": {
+        "tags": [
+          "AI/ML"
+        ],
+        "summary": "Recognize license plate from image",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ml_recognize_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Recognition result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/inline_response_200_4"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Get notifications (polling)",
+        "responses": {
+          "200": {
+            "description": "List of notifications",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/inline_response_200_5"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "inline_response_200_5": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      },
+      "vehicles_body": {
+        "type": "object",
+        "properties": {
+          "plate": {
+            "type": "string",
+            "example": "XYZ9876"
+          },
+          "brand": {
+            "type": "string",
+            "example": "Toyota"
+          },
+          "model": {
+            "type": "string",
+            "example": "Corolla"
+          },
+          "color": {
+            "type": "string",
+            "example": "Red"
+          }
+        }
+      },
+      "auth_register_body": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "marawan"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "123456"
+          },
+          "vehiclePlate": {
+            "type": "string",
+            "example": "ABC1234"
+          }
+        }
+      },
+      "ml_recognize_body": {
+        "type": "object",
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "example": "http://esp32/image123.jpg"
+          }
+        }
+      },
+      "inline_response_201": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          }
+        }
+      },
+      "inline_response_200_1": {
+        "type": "object",
+        "properties": {
+          "vehicleId": {
+            "type": "string"
+          },
+          "plate": {
+            "type": "string"
+          },
+          "brand": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          }
+        }
+      },
+      "auth_login_body": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "123456"
+          }
+        }
+      },
+      "inline_response_200": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "inline_response_201_1": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "vehicleId": {
+            "type": "string"
+          }
+        }
+      },
+      "inline_response_200_2": {
+        "type": "object",
+        "properties": {
+          "plate": {
+            "type": "string"
+          },
+          "authorized": {
+            "type": "boolean"
+          },
+          "ownerName": {
+            "type": "string"
+          }
+        }
+      },
+      "esp_barrier_body": {
+        "type": "object",
+        "properties": {
+          "plate": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "opened",
+              "closed"
+            ]
+          }
+        }
+      },
+      "inline_response_200_3": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "inline_response_200_4": {
+        "type": "object",
+        "properties": {
+          "plate": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "example": 0.94
+          }
+        }
+      },
+      "esp_detect_body": {
+        "type": "object",
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "example": "http://esp32/image123.jpg"
+          },
+          "timestamp": {
+            "type": "string",
+            "example": "2025-08-17T22:11:00Z"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

@@ -1,0 +1,206 @@
+openapi: 3.0.0
+info:
+  title: Smart IoT Garage API
+  description: Backend APIs for ESP32, Flutter app, and AI/ML service
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local dev server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: { type: string, example: marawan }
+                last_name: { type: string, example: zein }
+                email: { type: string, example: user@example.com }
+                password: { type: string, example: 123456 }
+                address: { type: string, example: country-state-street }
+                DOB: { type: Date, example: 12-11-2004 }
+                phone: { type: string, example: +2001228866929 }
+
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  userId: { type: string }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and get tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, example: user@example.com }
+                password: { type: string, example: 123456 }
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken: { type: string }
+                  refreshToken: { type: string }
+
+  /vehicles:
+    post:
+      tags: [Vehicles]
+      summary: Register a vehicle
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plate: { type: string, example: XYZ9876 }
+                company: { type: string, example: Toyota }
+                model: { type: string, example: Corolla }
+                color: { type: string, example: Red }
+      responses:
+        "201":
+          description: Vehicle registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  vehicleId: { type: string }
+
+    get:
+      tags: [Vehicles]
+      summary: Get all my vehicles
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: List of vehicles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    vehicleId: { type: string }
+                    plate: { type: string }
+                    brand: { type: string }
+                    model: { type: string }
+                    color: { type: string }
+
+  /esp/detect:
+    post:
+      tags: [ESP32]
+      summary: Send detection event from ESP32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageUrl: { type: string, example: http://esp32/image123.jpg }
+                timestamp: { type: string, example: 2025-08-17T22:11:00Z }
+      responses:
+        "200":
+          description: Detection result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plate: { type: string }
+                  authorized: { type: boolean }
+                  ownerName: { type: string }
+
+  /esp/barrier:
+    post:
+      tags: [ESP32]
+      summary: Update barrier status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plate: { type: string }
+                status: { type: string, enum: [opened, closed] }
+      responses:
+        "200":
+          description: Barrier status updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+
+  /ml/recognize:
+    post:
+      tags: [AI/ML]
+      summary: Recognize license plate from image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                imageUrl: { type: string, example: http://esp32/image123.jpg }
+      responses:
+        "200":
+          description: Recognition result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plate: { type: string }
+                  confidence: { type: number, example: 0.94 }
+
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: Get notifications (polling)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    message: { type: string }
+                    timestamp: { type: string }
