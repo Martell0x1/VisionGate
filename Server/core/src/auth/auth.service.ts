@@ -51,7 +51,13 @@ export class AuthService {
         ...registerData,
         password: hashedPassword,
       });
-      return { message: 'User registered successfully', result };
+      return {
+        message: 'User registered successfully',
+        accessToken: this.jwtService.sign({
+          sub: result.user_id,
+          email: result.email,
+        }),
+      };
     } catch (error) {
       throw new InternalServerErrorException(
         `Error registering user: ${error.message}`,
