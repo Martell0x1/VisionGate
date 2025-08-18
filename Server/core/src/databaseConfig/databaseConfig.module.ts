@@ -14,9 +14,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASS'),
         database: configService.get<string>('DB_NAME'),
-        ssl: configService.get<boolean>('DB_SSL')
-          ? { rejectUnauthorized: false }
-          : false,
+        // ssl: configService.get<boolean>('DB_SSL')
+        //   ? { rejectUnauthorized: false }
+        //   : false,
         autoLoadEntities: true,
         synchronize: true, // Set to false in production
         entities: [__dirname + '/../**/*.entity{.ts,.js}'], // both production(js) and dev(ts)
