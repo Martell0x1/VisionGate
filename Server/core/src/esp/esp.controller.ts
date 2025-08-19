@@ -12,10 +12,7 @@ import { CarsService } from 'src/car/car.service';
 
 @Controller('esp')
 export class espController {
-  constructor(
-    private readonly espService: espDetectionService,
-    private readonly carService: CarsService,
-  ) {}
+  constructor(private readonly espService: espDetectionService) {}
 
   @Post('detect')
   @UseInterceptors(FileInterceptor('file'))
@@ -27,13 +24,8 @@ export class espController {
     const { uploaded } = await this.espService.uploadFile(file, timestamp);
     if (uploaded) {
       const { data } = await this.espService.processFile(file);
-      const user = await this.carService.findUserByLicensePlate(
-        data.licensePlate,
-      );
-      const car = await this.carService.findCarWithLicensePlate(
-        data.licensePlate,
-      );
-      return { user, car };
+      const result = await this.espService.getData(data.licensePlate);
+      return result;
     }
   }
 }

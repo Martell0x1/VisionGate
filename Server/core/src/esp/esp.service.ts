@@ -2,11 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { existsSync, mkdirSync } from 'fs';
 import * as fs from 'fs';
 import * as path from 'path';
+import { CarsService } from 'src/car/car.service';
 import { MlService } from 'src/ml/ml.service';
 
 @Injectable()
 export class espDetectionService {
-  constructor(private readonly mlService: MlService) {}
+  constructor(
+    private readonly mlService: MlService,
+    private readonly carService: CarsService,
+  ) {}
   private readonly AllowedExts = [
     '.apng',
     '.png',
@@ -28,6 +32,12 @@ export class espDetectionService {
   public async processFile(file: Express.Multer.File) {
     const { data } = await this.mlService.recognize(file);
     return data;
+  }
+
+  public async getData(licensePlate: string) {
+    const user = await this.carService.findUserByLicensePlate(licensePlate);
+    const car = await this.carService.findCarWithLicensePlate(licensePlate);
+    return { user, car };
   }
 
   public async uploadFile(file: Express.Multer.File, timestamp: string) {
