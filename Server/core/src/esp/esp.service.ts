@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { existsSync, mkdirSync } from 'fs';
 import * as fs from 'fs';
 import * as path from 'path';
+import { MlService } from 'src/ml/ml.service';
 
 @Injectable()
-export class UploadService {
+export class espDetectionService {
+  constructor(private readonly mlService: MlService) {}
   private readonly AllowedExts = [
     '.apng',
     '.png',
@@ -23,6 +25,10 @@ export class UploadService {
     '.tif',
     '.tiff',
   ];
+  public async processFile(file: Express.Multer.File) {
+    const { data } = await this.mlService.recognize(file);
+    return data;
+  }
 
   public async uploadFile(file: Express.Multer.File, timestamp: string) {
     if (!file) {
@@ -46,6 +52,7 @@ export class UploadService {
 
     return {
       status: 'Uploaded',
+      uploaded: true,
       message: 'File uploaded',
       filename: newFilename,
     };

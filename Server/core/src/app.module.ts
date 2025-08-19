@@ -5,10 +5,11 @@ import { DatabaseConfigModule } from './databaseConfig/databaseConfig.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseConfigController } from './databaseConfig/databaseConfig.controller';
 import { UserModule } from './user/user.module';
-import { UploadModule } from './esp/esp.module';
+import { espModule } from './esp/esp.module';
 import { CarModule } from './car/car.module';
 import { PlanModule } from './plan/plan.module';
 import { AuthModule } from './auth/auth.module';
+import { MlModule } from './ml/ml.module';
 
 @Module({
   imports: [
@@ -18,10 +19,11 @@ import { AuthModule } from './auth/auth.module';
     }),
     DatabaseConfigModule,
     UserModule,
-    UploadModule,
+    espModule,
     CarModule,
     PlanModule,
     AuthModule,
+    MlModule,
   ],
   controllers: [AppController, DatabaseConfigController],
   providers: [AppService],

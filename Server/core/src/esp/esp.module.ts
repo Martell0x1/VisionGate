@@ -1,16 +1,21 @@
 import { Module } from '@nestjs/common';
-import { UploadController } from './esp.controller';
-import { UploadService } from './esp.service';
+import { espController } from './esp.controller';
+import { espDetectionService } from './esp.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { MlModule } from 'src/ml/ml.module';
+import { CarModule } from 'src/car/car.module';
 
 @Module({
   imports: [
     MulterModule.register({
       storage: diskStorage({}),
     }),
+    MlModule,
+    CarModule,
   ],
-  controllers: [UploadController],
-  providers: [UploadService],
+  controllers: [espController],
+  providers: [espDetectionService],
+  exports: [espDetectionService],
 })
-export class UploadModule {}
+export class espModule {}
