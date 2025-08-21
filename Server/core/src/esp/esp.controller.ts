@@ -1,6 +1,9 @@
 import {
   Body,
   Controller,
+  HttpCode,
+  HttpException,
+  HttpStatus,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -20,12 +23,13 @@ export class espController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: UploadFileEspDTO,
   ) {
-    const { timestamp } = body;
-    const { uploaded } = await this.espService.uploadFile(file, timestamp);
-    if (uploaded) {
-      const { data } = await this.espService.processFile(file);
-      const result = await this.espService.getData(data.licensePlate);
-      return result;
+    console.log('controller');
+    const { uploaded } = await this.espService.uploadFile(file);
+    if (!uploaded) {
+      throw new HttpException('File upload failed', HttpStatus.BAD_REQUEST);
     }
+    const data = await this.espService.processFile(file);
+    const result = await this.espService.getData(data.licensePlate);
+    return result;
   }
 }
