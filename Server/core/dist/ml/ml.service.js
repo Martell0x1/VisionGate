@@ -31,7 +31,6 @@ let MlService = class MlService {
             })(), formData, {
             headers: formData.getHeaders(),
         }));
-        console.log(response.data);
         return response.data;
     }
 };

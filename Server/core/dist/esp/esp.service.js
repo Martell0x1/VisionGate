@@ -45,7 +45,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.espDetectionService = void 0;
 const common_1 = require("@nestjs/common");
 const fs_1 = require("fs");
-const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const car_service_1 = require("../car/car.service");
 const ml_service_1 = require("../ml/ml.service");
@@ -94,12 +93,9 @@ let espDetectionService = class espDetectionService {
         const uploadPath = path.join(__dirname, '../../', 'uploads');
         if (!(0, fs_1.existsSync)(uploadPath)) {
             (0, fs_1.mkdirSync)(uploadPath, { recursive: true });
-            console.log('Created upload directory');
         }
-        console.log('after');
         const newFilename = `file${ext}`;
         const newPath = path.join(uploadPath, newFilename);
-        fs.renameSync(file.path, newPath);
         return {
             status: 'Uploaded',
             uploaded: true,

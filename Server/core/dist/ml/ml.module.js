@@ -10,12 +10,14 @@ exports.MlModule = void 0;
 const common_1 = require("@nestjs/common");
 const ml_service_1 = require("./ml.service");
 const axios_1 = require("@nestjs/axios");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
 let MlModule = class MlModule {
 };
 exports.MlModule = MlModule;
 exports.MlModule = MlModule = __decorate([
     (0, common_1.Module)({
-        imports: [axios_1.HttpModule],
+        imports: [axios_1.HttpModule, platform_express_1.MulterModule.register({ storage: (0, multer_1.memoryStorage)() })],
         providers: [ml_service_1.MlService],
         exports: [ml_service_1.MlService],
     })

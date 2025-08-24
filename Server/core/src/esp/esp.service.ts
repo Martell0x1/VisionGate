@@ -46,7 +46,6 @@ export class espDetectionService {
     }
 
     const ext = path.extname(file.originalname).toLowerCase();
-    // console.log('before');
     if (!this.AllowedExts.includes(ext)) {
       return { status: 'error', uploaded: false, message: 'Invalid file type' };
     }
@@ -54,15 +53,13 @@ export class espDetectionService {
     const uploadPath = path.join(__dirname, '../../', 'uploads');
     if (!existsSync(uploadPath)) {
       mkdirSync(uploadPath, { recursive: true });
-      console.log('Created upload directory');
     }
-    console.log('after');
 
-    // const newFilename = `${timestamp}-${Math.floor(Math.random() * 1e9)}${ext}`;
     const newFilename = `file${ext}`;
     const newPath = path.join(uploadPath, newFilename);
 
-    fs.renameSync(file.path, newPath);
+    // Save buffer to disk
+    // fs.writeFileSync(newPath, file.buffer);
 
     return {
       status: 'Uploaded',

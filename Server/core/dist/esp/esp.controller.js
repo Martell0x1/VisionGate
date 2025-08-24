@@ -30,7 +30,7 @@ let espController = class espController {
         }
         const data = await this.espService.processFile(file);
         const result = await this.espService.getData(data.licensePlate);
-        return result;
+        return data;
     }
 };
 exports.espController = espController;

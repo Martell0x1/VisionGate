@@ -21,7 +21,7 @@ exports.espModule = espModule = __decorate([
     (0, common_1.Module)({
         imports: [
             platform_express_1.MulterModule.register({
-                storage: (0, multer_1.diskStorage)({}),
+                storage: (0, multer_1.memoryStorage)(),
             }),
             ml_module_1.MlModule,
             car_module_1.CarModule,
