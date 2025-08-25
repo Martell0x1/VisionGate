@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vision_gate/Screens/loading_screen.dart';
 import 'package:vision_gate/themes/theme_model.dart'; // Import your ThemeModel
-import '../Screens/register_page.dart';
 
 void main() {
   runApp(const MyApp());
