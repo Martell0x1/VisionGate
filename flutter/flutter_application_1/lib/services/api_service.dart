@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:vision_gate/models/login.dart';
 import '../models/user.dart';
+import '../models/vehicle.dart';
 import './token_manager.dart';
 import './server_config.dart';
 
@@ -19,16 +20,18 @@ class ApiService {
   /// Always resolve baseUrl dynamically
   Future<String> _getBaseUrl() async {
     final stored = await ServerConfig.getBaseUrl();
-    return stored ?? "http://192.168.1.2:3000"; // fallback default
+    return stored ?? "http://localhost:3000"; // fallback default
   }
 
   /// اختبار الاتصال بالـ API
   Future<ApiResponse<Map<String, dynamic>>> testApi() async {
     try {
       final baseUrl = await _getBaseUrl(); // ✅ use dynamic baseUrl
-      final response = await http.get(Uri.parse("$baseUrl/databaseConfig/health"));
+      final response = await http.get(
+        Uri.parse("$baseUrl/databaseConfig/health"),
+      );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final data = json.decode(response.body) as Map<String, dynamic>;
         return ApiResponse(success: true, data: data);
       } else {
@@ -110,12 +113,64 @@ class ApiService {
 
       final data = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         return ApiResponse(success: true, data: data);
       } else {
         return ApiResponse(
           success: false,
-          message: "فشل جلب بيانات المستخدم: ${data['message'] ?? 'خطأ غير معروف'}",
+          message:
+              "فشل جلب بيانات المستخدم: ${data['message'] ?? 'خطأ غير معروف'}",
+        );
+      }
+    } catch (e) {
+      return ApiResponse(success: false, message: "Exception: $e");
+    }
+  }
+
+  Future<ApiResponse<Map<String, dynamic>>> addCar(Vehicle car) async {
+    try {
+      final baseUrl = await _getBaseUrl();
+      final response = await http.post(
+        Uri.parse("$baseUrl/cars"),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(car.toJson()),
+      );
+
+      final data = json.decode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return ApiResponse(success: true, data: data);
+      } else {
+        return ApiResponse(
+          success: false,
+          message: "${data['message'] ?? 'خطأ غير معروف'}",
+        );
+      }
+    } catch (e) {
+      return ApiResponse(success: false, message: "Exception: $e");
+    }
+  }
+
+  Future<ApiResponse<List<Map<String, dynamic>>>> getUserCars(int userId) async {
+    try {
+      final baseUrl = await _getBaseUrl();
+      final response = await http.get(
+        Uri.parse("$baseUrl/cars/usercars/$userId"),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final rawList = json.decode(response.body);
+
+        // ✅ Safely cast to List<Map<String, dynamic>>
+        final List<Map<String, dynamic>> jsonList =
+            List<Map<String, dynamic>>.from(rawList);
+
+        return ApiResponse(success: true, data: jsonList);
+      } else {
+        return ApiResponse(
+          success: false,
+          message: "خطأ غير معروف",
         );
       }
     } catch (e) {

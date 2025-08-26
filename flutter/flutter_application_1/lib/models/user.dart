@@ -1,5 +1,3 @@
-import 'vehicle.dart';
-
 class User {
   final String first_name;
   final String last_name;
@@ -9,7 +7,6 @@ class User {
   final String phone;
   final String NAID;
   final String dob;
-  final List<Vehicle> vehicles;
 
   const User({
     required this.first_name,
@@ -20,7 +17,6 @@ class User {
     required this.phone,
     required this.NAID,
     required this.dob,
-    required this.vehicles,
   });
 
   Map<String, dynamic> toJson() => {
@@ -32,7 +28,6 @@ class User {
     "phone": phone,
     "NAID": NAID,
     "dob": dob,
-    "vehicles": vehicles.map((v) => v.toJson()).toList(),
   };
 
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -44,8 +39,5 @@ class User {
     phone: json["phone"],
     NAID: json["NAID"],
     dob: json["dob"],
-    vehicles: (json["vehicles"] as List)
-        .map((v) => Vehicle.fromJson(v))
-        .toList(),
   );
 }

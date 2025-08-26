@@ -10,24 +10,22 @@ export class CarsService {
   ) {}
 
   async findAll(): Promise<Car[]> {
-    return this.carRepo.find({ relations: ['user', 'plan'] });
+    return this.carRepo.find({});
   }
 
-  async findOne(car_id: string): Promise<Car> {
+  async findOne(license_plate: string): Promise<Car> {
     const car = await this.carRepo.findOne({
-      where: { car_id },
-      relations: ['user', 'plan'],
+      where: { license_plate },
     });
 
-    if (!car) throw new NotFoundException(`Car with ID ${car_id} not found`);
+    if (!car) throw new NotFoundException(`Car with ID ${license_plate} not found`);
 
     return car;
   }
 
   async findCarWithLicensePlate(licensePlate: string) {
     const car = await this.carRepo.findOne({
-      where: { license_plate: licensePlate },
-      relations: ['user', 'plan'],
+      where: { license_plate: licensePlate }
     });
     if (!car)
       throw new NotFoundException(
@@ -40,7 +38,6 @@ export class CarsService {
   async findUserByLicensePlate(licensePlate: string) {
     const car = await this.carRepo.findOne({
       where: { license_plate: licensePlate },
-      relations: ['user'], // eager load the user
     });
 
     if (!car) {
@@ -49,11 +46,29 @@ export class CarsService {
       );
     }
 
-    return car.user;
+    return car.user_id;
+  }
+
+
+  async getUserCars(id: number) {
+    const cars = await this.carRepo.find({
+    where: { user_id: id },
+    // relations: ['user', 'plan'], // <-- load related user and plan entities
+  });
+
+    if (!cars || cars.length === 0) {
+      throw new NotFoundException(
+        `User with id ${id} does not have any cars or the user does not exist.`,
+      );
+    }
+
+
+    return cars;
   }
 
   async create(carData: Partial<Car>): Promise<Car> {
     const car = this.carRepo.create(carData);
+    console.log(carData); // for test
     return this.carRepo.save(car);
   }
 

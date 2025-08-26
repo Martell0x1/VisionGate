@@ -11,22 +11,19 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Car = void 0;
 const typeorm_1 = require("typeorm");
-const user_entity_1 = require("../../user/entities/user.entity");
-const plan_entity_1 = require("../../plan/entities/plan.entity");
 let Car = class Car {
-    car_id;
+    license_plate;
     company;
     car_model;
     subscription_start;
-    license_plate;
-    user;
-    plan;
+    user_id;
+    plan_id;
 };
 exports.Car = Car;
 __decorate([
-    (0, typeorm_1.PrimaryColumn)({ length: 6 }),
+    (0, typeorm_1.PrimaryColumn)({ type: 'varchar', length: 100, nullable: false }),
     __metadata("design:type", String)
-], Car.prototype, "car_id", void 0);
+], Car.prototype, "license_plate", void 0);
 __decorate([
     (0, typeorm_1.Column)({ length: 100 }),
     __metadata("design:type", String)
@@ -40,19 +37,13 @@ __decorate([
     __metadata("design:type", Date)
 ], Car.prototype, "subscription_start", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 100, nullable: false }),
-    __metadata("design:type", String)
-], Car.prototype, "license_plate", void 0);
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Car.prototype, "user_id", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.cars),
-    (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
-    __metadata("design:type", user_entity_1.User)
-], Car.prototype, "user", void 0);
-__decorate([
-    (0, typeorm_1.ManyToOne)(() => plan_entity_1.Plan, (plan) => plan.cars),
-    (0, typeorm_1.JoinColumn)({ name: 'plan_id' }),
-    __metadata("design:type", plan_entity_1.Plan)
-], Car.prototype, "plan", void 0);
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Car.prototype, "plan_id", void 0);
 exports.Car = Car = __decorate([
     (0, typeorm_1.Entity)('cars')
 ], Car);

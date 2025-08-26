@@ -27,6 +27,11 @@ export class CarsController {
     return this.carsService.findOne(id);
   }
 
+  @Get('usercars/:id')
+  async getUserCars(@Param('id') id: number) {
+    return this.carsService.getUserCars(id);
+  }
+
   @Post()
   create(@Body() carData: Partial<Car>): Promise<Car> {
     return this.carsService.create(carData);

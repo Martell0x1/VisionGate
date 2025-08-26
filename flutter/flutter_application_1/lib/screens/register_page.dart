@@ -5,7 +5,6 @@ import 'package:vision_gate/screens/home_page.dart';
 import 'dart:io';
 import '../services/api_service.dart'; // المسار حسب مكان api_service.dart
 import '../models/user.dart';
-import '../models/vehicle.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -81,16 +80,6 @@ class _RegisterPage extends State<RegisterPage> {
       phone: _phoneController.text,
       NAID: _idNumberController.text,
       dob: _fullDate,
-      vehicles: _vehicles
-          .map(
-            (v) => Vehicle(
-              company: v["company"]!,
-              model: v["model"]!,
-              name: v["name"]!,
-              plate: v["plate"]!,
-            ),
-          )
-          .toList(),
     );
 
     try {

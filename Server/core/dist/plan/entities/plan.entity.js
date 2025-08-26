@@ -37,7 +37,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Plan.prototype, "price", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => car_entity_1.Car, (car) => car.plan),
+    (0, typeorm_1.OneToMany)(() => car_entity_1.Car, (car) => car.plan_id),
     __metadata("design:type", Array)
 ], Plan.prototype, "cars", void 0);
 exports.Plan = Plan = __decorate([

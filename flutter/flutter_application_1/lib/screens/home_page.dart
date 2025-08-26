@@ -6,6 +6,7 @@ import 'package:vision_gate/screens/server_settings_page.dart';
 import '../services/api_service.dart';
 import '../models/login.dart';
 import './menu_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -44,6 +45,12 @@ class HomePageState extends State<HomePage> {
             builder: (newContext) => MenuPage(email: user.email),
           ),
         );
+
+        
+
+        // Save
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('email', _emailController.text);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Login failed: ${response.message ?? 'Unknown error'}")),

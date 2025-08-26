@@ -7,7 +7,7 @@ export declare class espDetectionService {
     private readonly AllowedExts;
     processFile(file: Express.Multer.File): Promise<any>;
     getData(licensePlate: string): Promise<{
-        user: import("../user/entities/user.entity").User;
+        user: number;
         car: import("../car/entities/car.entity").Car;
     }>;
     uploadFile(file: Express.Multer.File): Promise<{

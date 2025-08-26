@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vision_gate/models/vehicle.dart';
 import '../services/api_service.dart';
 
 class SettingsPage extends StatefulWidget {
   final String email;
-  const SettingsPage({super.key , required this.email});
+  const SettingsPage({super.key, required this.email});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -14,7 +16,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Map<String, dynamic>? userData = {};
   bool _loading = true;
 
-  List<Map<String, String>> _vehicles = []; // List to hold vehicle data
+  List<Map<String, dynamic>> _vehicles = []; // List to hold vehicle data
 
   @override
   void initState() {
@@ -23,25 +25,59 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _fetchUser() async {
-    final response = await ApiService().getUserByEmail(widget.email);
+    try {
+      // 1. Get user by email
+      final response = await ApiService().getUserByEmail(widget.email);
 
-    setState(() {
-      _loading = false;
+      if (!mounted) return; // Stop if widget is no longer active
 
       if (response.success) {
         userData = response.data;
         print("✅ User data loaded successfully: $userData");
+
+        final userId = userData?["user_id"];
+        if (userId == null) {
+          print("⚠️ user_id is null — cannot fetch cars");
+          return;
+        }
+
+        // 2. Save user_id to SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('user_id', userId);
+
+        // 3. Fetch user's vehicles
+        final userCarsResponse = await ApiService().getUserCars(userId);
+
+        if (!mounted) return;
+
+        print("🚗 getUserCars response: ${userCarsResponse.data}");
+        print("🚦 getUserCars success: ${userCarsResponse.success}");
+        print("📩 getUserCars message: ${userCarsResponse.message}");
+
+        if (userCarsResponse.success) {
+          _vehicles = userCarsResponse.data ?? [];
+          print("✅ vehicles: $_vehicles");
+        } else {
+          print("❌ Failed to load vehicles for user ID: $userId");
+        }
       } else {
         userData = null;
         print("❌ Failed to load user data for email: ${widget.email}");
-        print("Response: ${response.message ?? response.data}");
+        print("📩 Response: ${response.message ?? response.data}");
       }
+    } catch (e) {
+      print("🔥 Exception in _fetchUser: $e");
+    }
+
+    if (!mounted) return;
+
+    // 4. Update UI state
+    setState(() {
+      _loading = false;
     });
   }
 
-
-
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -52,27 +88,27 @@ class _SettingsPageState extends State<SettingsPage> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : userData == null
-              ? const Center(child: Text("❌ Failed to load user data"))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildProfileHeader(),
-                      const SizedBox(height: 24),
-                      _buildSectionTitle('Personal Information'),
-                      _buildInfoCard(),
-                      const SizedBox(height: 24),
-                      _buildSectionTitle('Cars'),
-                      _cars(),
-                      _buildSectionTitle('Account Settings'),
-                      _buildSettingsCards(),
-                      const SizedBox(height: 24),
-                      _buildSectionTitle('Actions'),
-                      _buildActionButtons(context),
-                    ],
-                  ),
-                ),
+          ? const Center(child: Text("❌ Failed to load user data"))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildProfileHeader(),
+                  const SizedBox(height: 24),
+                  _buildSectionTitle('Personal Information'),
+                  _buildInfoCard(),
+                  const SizedBox(height: 24),
+                  _buildSectionTitle('Cars'),
+                  _cars(),
+                  _buildSectionTitle('Account Settings'),
+                  _buildSettingsCards(),
+                  const SizedBox(height: 24),
+                  _buildSectionTitle('Actions'),
+                  _buildActionButtons(context),
+                ],
+              ),
+            ),
     );
   }
 
@@ -89,7 +125,7 @@ class _SettingsPageState extends State<SettingsPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             IconButton(
-              icon: Icon(Icons.add_circle_outline),
+              icon: const Icon(Icons.add_circle_outline),
               onPressed: _addVehicleDialog,
               tooltip: "Add Vehicle",
             ),
@@ -106,7 +142,22 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   // Build a card for each vehicle
-  Widget _buildVehicleCard(Map<String, String> vehicle) {
+  Widget _buildVehicleCard(Map<String, dynamic> vehicle) {
+    // Convert subscription_start from String to DateTime if it exists
+    DateTime? subscriptionStart;
+    if (vehicle['subscription_start'] != null) {
+      subscriptionStart = DateTime.parse(vehicle['subscription_start']);
+    }
+
+    // If subscriptionStart is available, convert it to local time
+    String subscriptionStartFormatted = '';
+    if (subscriptionStart != null) {
+      subscriptionStartFormatted = subscriptionStart.toLocal().toString();
+    } else {
+      subscriptionStartFormatted =
+          'Not Available'; // Fallback if no subscription start date is present
+    }
+
     return Card(
       elevation: 3,
       child: Padding(
@@ -118,8 +169,12 @@ class _SettingsPageState extends State<SettingsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  vehicle['company']!,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  vehicle['company'] ??
+                      'Unknown', // Safely handle missing fields
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit, color: Colors.blue),
@@ -129,9 +184,22 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
             const SizedBox(height: 10),
-            _buildVehicleInfoRow("Car Model", vehicle['car_model']!),
-            _buildVehicleInfoRow("License Plate", vehicle['license']!),
-            _buildVehicleInfoRow("Plan", vehicle['plan']!),
+            _buildVehicleInfoRow(
+              "Car Model",
+              vehicle['car_model'] ?? 'Unknown',
+            ),
+            _buildVehicleInfoRow(
+              "License Plate",
+              vehicle['license_plate'] ?? 'Unknown',
+            ),
+            _buildVehicleInfoRow(
+              "Plan ID",
+              vehicle['plan_id']?.toString() ?? 'Unknown',
+            ),
+            _buildVehicleInfoRow(
+              "Subscription Start",
+              subscriptionStartFormatted,
+            ),
           ],
         ),
       ),
@@ -149,15 +217,13 @@ class _SettingsPageState extends State<SettingsPage> {
             width: 100,
             child: Text(
               "$label:",
-              style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.grey),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.grey,
+              ),
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
+          Expanded(child: Text(value, style: const TextStyle(fontSize: 16))),
         ],
       ),
     );
@@ -168,13 +234,84 @@ class _SettingsPageState extends State<SettingsPage> {
     final TextEditingController carModelController = TextEditingController();
     final TextEditingController licenseController = TextEditingController();
     String? selectedCompany;
-    String? selectedPlan;
+    int? selectedPlan;
 
     final List<String> carCompanies = [
-      "Toyota", "Hyundai", "BMW", "Mercedes", "Honda", "Ford", 
-      "Chevrolet", "Nissan", "Audi", "Volkswagen", "Kia", "Other"
+      "Toyota",
+      "Hyundai",
+      "BMW",
+      "Mercedes",
+      "Honda",
+      "Ford",
+      "Chevrolet",
+      "Nissan",
+      "Audi",
+      "Volkswagen",
+      "Kia",
+      "Other",
     ];
-    final List<String> planOptions = ["Basic", "Standard", "Premium", "Business", "Enterprise"];
+    final List<Map<String, dynamic>> planOptions = [
+      {"id": 0, "name": "Basic", "price": 100, "duration": "1 Month"},
+      {"id": 1, "name": "Standard", "price": 250, "duration": "3 Months"},
+      {"id": 2, "name": "Premium", "price": 450, "duration": "6 Months"},
+      {"id": 3, "name": "Gold", "price": 800, "duration": "12 Months"},
+      {"id": 4, "name": "Enterprise", "price": 1200, "duration": "18 Months"},
+    ];
+
+    // Function to handle registration
+    Future<void> _addCar() async {
+      // Show loading snackbar first
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("⏳ Adding car ...")));
+
+      final prefs = await SharedPreferences.getInstance();
+      DateTime currentDate = DateTime.now(); // Gets the current date and time
+      DateTime dateOnly = DateTime(
+        currentDate.year,
+        currentDate.month,
+        currentDate.day,
+      );
+
+      // Collect the user data
+      final car = Vehicle(
+        user_id: prefs.getInt('user_id') ?? 0,
+        plan_id: selectedPlan ?? 0,
+        car_model: carModelController.text,
+        company: selectedCompany ?? '',
+        license_plate: licenseController.text,
+        subscription_start: dateOnly,
+      );
+
+      try {
+        // Call the API service to register the user
+        final response = await ApiService().addCar(car);
+        print(car.toJson());
+
+        // Check if status is OK before navigating
+        if (response.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Car added successfully ")),
+          );
+
+          _fetchUser(); // refresh page
+        } else {
+          // Show error message if status is not OK
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Registration failed: ${response.message ?? 'Unknown error'}",
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        // Handle error during registration
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
+      }
+    }
 
     showDialog(
       context: context,
@@ -190,7 +327,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     DropdownButtonFormField<String>(
                       value: selectedCompany,
                       items: carCompanies.map((company) {
-                        return DropdownMenuItem(value: company, child: Text(company));
+                        return DropdownMenuItem(
+                          value: company,
+                          child: Text(company),
+                        );
                       }).toList(),
                       onChanged: (val) {
                         setState(() {
@@ -205,22 +345,29 @@ class _SettingsPageState extends State<SettingsPage> {
                       decoration: const InputDecoration(labelText: "Car Model"),
                     ),
                     const SizedBox(height: 15),
-                    DropdownButtonFormField<String>(
-                      value: selectedPlan,
-                      items: planOptions.map((plan) {
-                        return DropdownMenuItem(value: plan, child: Text(plan));
-                      }).toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          selectedPlan = val;
-                        });
-                      },
-                      decoration: const InputDecoration(labelText: "Plan"),
-                    ),
+                    DropdownButtonFormField<int>(
+                    value: selectedPlan,
+                    items: planOptions.map((plan) {
+                      return DropdownMenuItem<int>(
+                        value: plan["id"],
+                        child: Text(
+                          "${plan["name"]} - \$${plan["price"]} - ${plan["duration"]}",
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        selectedPlan = val;
+                      });
+                    },
+                    decoration: const InputDecoration(labelText: "Plan"),
+                  ),
                     const SizedBox(height: 15),
                     TextFormField(
                       controller: licenseController,
-                      decoration: const InputDecoration(labelText: "License Plate"),
+                      decoration: const InputDecoration(
+                        labelText: "License Plate",
+                      ),
                     ),
                   ],
                 ),
@@ -236,14 +383,10 @@ class _SettingsPageState extends State<SettingsPage> {
                         carModelController.text.isNotEmpty &&
                         selectedPlan != null &&
                         licenseController.text.isNotEmpty) {
-                      setState(() {
-                        _vehicles.add({
-                          "company": selectedCompany!,
-                          "car_model": carModelController.text,
-                          "plan": selectedPlan!,
-                          "license": licenseController.text,
-                        });
-                      });
+                      // -------------------- POST request to add car
+
+                      _addCar();
+
                       Navigator.pop(context);
                     }
                   },
@@ -258,7 +401,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   // Method to edit vehicle
-  void _editVehicle(Map<String, String> vehicle) {
+  void _editVehicle(Map<String, dynamic> vehicle) {
     // Similar to _addVehicleDialog, you can pre-fill fields for editing.
   }
 
@@ -267,8 +410,8 @@ class _SettingsPageState extends State<SettingsPage> {
     if (userData == null) return const Center(child: Text("❌ No user data"));
 
     final firstName = userData?['first_name'] ?? '';
-    final lastName  = userData?['last_name'] ?? '';
-    final email     = userData?['email'] ?? '';
+    final lastName = userData?['last_name'] ?? '';
+    final email = userData?['email'] ?? '';
 
     return Center(
       child: Column(
@@ -277,21 +420,40 @@ class _SettingsPageState extends State<SettingsPage> {
             radius: 40,
             backgroundColor: Colors.blue.shade100,
             child: Text(
-              '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'.toUpperCase(),
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
+              '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'
+                  .toUpperCase(),
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          Text('$firstName $lastName', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          Text(email, style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
+          Text(
+            '$firstName $lastName',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            email,
+            style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+          ),
         ],
       ),
     );
   }
+
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.blue,
+        ),
+      ),
     );
   }
 
@@ -330,9 +492,21 @@ class _SettingsPageState extends State<SettingsPage> {
       children: [
         Expanded(
           flex: 2,
-          child: Text(label, style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.grey)),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Colors.grey,
+            ),
+          ),
         ),
-        Expanded(flex: 3, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w400))),
+        Expanded(
+          flex: 3,
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w400),
+          ),
+        ),
       ],
     );
   }
@@ -340,15 +514,40 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildSettingsCards() {
     return Column(
       children: [
-        _buildSettingTile(icon: Icons.notifications, title: 'Notifications', subtitle: 'Manage your notifications', onTap: () {}),
-        _buildSettingTile(icon: Icons.security, title: 'Privacy & Security', subtitle: 'Manage your privacy settings', onTap: () {}),
-        _buildSettingTile(icon: Icons.language, title: 'Language', subtitle: 'Change app language', onTap: () {}),
-        _buildSettingTile(icon: Icons.help, title: 'Help & Support', subtitle: 'Get help and support', onTap: () {}),
+        _buildSettingTile(
+          icon: Icons.notifications,
+          title: 'Notifications',
+          subtitle: 'Manage your notifications',
+          onTap: () {},
+        ),
+        _buildSettingTile(
+          icon: Icons.security,
+          title: 'Privacy & Security',
+          subtitle: 'Manage your privacy settings',
+          onTap: () {},
+        ),
+        _buildSettingTile(
+          icon: Icons.language,
+          title: 'Language',
+          subtitle: 'Change app language',
+          onTap: () {},
+        ),
+        _buildSettingTile(
+          icon: Icons.help,
+          title: 'Help & Support',
+          subtitle: 'Get help and support',
+          onTap: () {},
+        ),
       ],
     );
   }
 
-  Widget _buildSettingTile({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
+  Widget _buildSettingTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(

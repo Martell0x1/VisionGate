@@ -11,11 +11,13 @@ const common_1 = require("@nestjs/common");
 const car_service_1 = require("./car.service");
 const typeorm_1 = require("@nestjs/typeorm");
 const car_entity_1 = require("./entities/car.entity");
+const car_controller_1 = require("./car.controller");
 let CarModule = class CarModule {
 };
 exports.CarModule = CarModule;
 exports.CarModule = CarModule = __decorate([
     (0, common_1.Module)({
+        controllers: [car_controller_1.CarsController],
         imports: [typeorm_1.TypeOrmModule.forFeature([car_entity_1.Car])],
         exports: [car_service_1.CarsService],
         providers: [car_service_1.CarsService],

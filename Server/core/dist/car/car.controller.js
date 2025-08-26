@@ -29,6 +29,9 @@ let CarsController = class CarsController {
     findOne(id) {
         return this.carsService.findOne(id);
     }
+    async getUserCars(id) {
+        return this.carsService.getUserCars(id);
+    }
     create(carData) {
         return this.carsService.create(carData);
     }
@@ -60,6 +63,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], CarsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Get)('usercars/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], CarsController.prototype, "getUserCars", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),

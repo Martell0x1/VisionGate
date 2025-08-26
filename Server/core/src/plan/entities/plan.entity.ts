@@ -15,6 +15,6 @@ export class Plan {
   @Column({ type: 'int' })
   price: number;
 
-  @OneToMany(() => Car, (car) => car.plan)
+  @OneToMany(() => Car, (car) => car.plan_id)
   cars: Car[];
 }
