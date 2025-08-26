@@ -3,7 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../navigation/menu_navigator.dart';
 
 class MenuPage extends StatelessWidget {
-  const MenuPage({super.key});
+  final String email;
+  const MenuPage({super.key,required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +147,7 @@ class MenuPage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: GestureDetector(
-                      onTap: () => AppNavigator.goToSettings(context),
+                      onTap: () => AppNavigator.goToSettings(context, email),
                       child: quickAccessCard(
                         'Settings',
                         'Account settings',

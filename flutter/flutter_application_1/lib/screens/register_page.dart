@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:image_picker/image_picker.dart';
-import 'package:vision_gate/Screens/home_page.dart';
+import 'package:vision_gate/screens/home_page.dart';
 import 'dart:io';
 import '../services/api_service.dart'; // المسار حسب مكان api_service.dart
 import '../models/user.dart';

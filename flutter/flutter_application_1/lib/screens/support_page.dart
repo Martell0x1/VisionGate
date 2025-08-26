@@ -1,4 +1,4 @@
-import 'package:vision_gate/Screens/chatbot_page.dart';
+import 'package:vision_gate/screens/chatbot_page.dart';
 import 'package:vision_gate/navigation/support_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

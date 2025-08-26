@@ -26,9 +26,6 @@ exports.DatabaseConfigModule = DatabaseConfigModule = __decorate([
                     username: configService.get('DB_USER'),
                     password: configService.get('DB_PASS'),
                     database: configService.get('DB_NAME'),
-                    ssl: {
-                        rejectUnauthorized: false,
-                    },
                     autoLoadEntities: true,
                     synchronize: true,
                     entities: [__dirname + '/../**/*.entity{.ts,.js}'],

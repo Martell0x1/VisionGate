@@ -1,7 +1,8 @@
 import 'package:vision_gate/themes/theme_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vision_gate/Screens/register_page.dart';
+import 'package:vision_gate/screens/register_page.dart';
+import 'package:vision_gate/screens/server_settings_page.dart';
 import '../services/api_service.dart';
 import '../models/login.dart';
 import './menu_page.dart';
@@ -20,51 +21,43 @@ class HomePageState extends State<HomePage> {
   String _responseMessage = ''; // Variable to hold response message
 
   Future<void> _login() async {
-  
     // Show loading snackbar first
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("⏳ Login...")),
     );
 
-    // Collect the user data
     final user = Login(
       email: _emailController.text,
       password: _passwordController.text,
     );
 
     try {
-      // Call the API service to register the user
       final response = await ApiService().userlogin(user);
 
-      // Set the response message from the API
       setState(() {
         _responseMessage = response.message ?? 'Login successful';
       });
 
-      // Check if status is OK before navigating
       if (response.success) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (newContext) => MenuPage(),
+            builder: (newContext) => MenuPage(email: user.email),
           ),
         );
       } else {
-        // Show error message if status is not OK
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Registration failed: ${response.message ?? 'Unknown error'}")),
+          SnackBar(content: Text("Login failed: ${response.message ?? 'Unknown error'}")),
         );
       }
     } catch (e) {
-      // Handle error during registration
       setState(() {
         _responseMessage = 'Error: ${e.toString()}';
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: ${e.toString()}")),
       );
-    
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +78,18 @@ class HomePageState extends State<HomePage> {
               ),
             ),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.settings), // ✅ add settings button
+                color: themeNotifier.isDark ? Colors.white : Colors.grey.shade900,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ServerSettingsPage(),
+                    ),
+                  );
+                },
+              ),
               IconButton(
                 icon: Icon(
                   themeNotifier.isDark
@@ -128,23 +133,14 @@ class HomePageState extends State<HomePage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image(
-                            width: 30,
-                            image: AssetImage('assets/google.jpg'),
-                          ),
+                          Image(width: 30, image: AssetImage('assets/google.jpg')),
                           SizedBox(width: 40),
-                          Image(
-                            width: 30,
-                            image: AssetImage('assets/facebook.jpg'),
-                          ),
+                          Image(width: 30, image: AssetImage('assets/facebook.jpg')),
                         ],
                       ),
                       SizedBox(height: 50),
                       Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                         decoration: BoxDecoration(
                           color: Theme.of(context).primaryColorLight,
                           borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -159,10 +155,7 @@ class HomePageState extends State<HomePage> {
                       ),
                       SizedBox(height: 20),
                       Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 5,
-                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                         decoration: BoxDecoration(
                           color: Theme.of(context).primaryColorLight,
                           borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -177,20 +170,14 @@ class HomePageState extends State<HomePage> {
                         ),
                       ),
                       SizedBox(height: 20),
-                      Text(
-                        "Forgot Password?",
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
+                      Text("Forgot Password?",
+                          style: Theme.of(context).textTheme.bodyLarge),
                     ],
                   ),
                   Column(
                     children: [
                       MaterialButton(
-                        onPressed: () => {
-
-                          _login()
-
-                        },
+                        onPressed: _login,
                         elevation: 0,
                         padding: EdgeInsets.all(18),
                         shape: RoundedRectangleBorder(
@@ -209,9 +196,7 @@ class HomePageState extends State<HomePage> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => RegisterPage(),
-                            ),
+                            MaterialPageRoute(builder: (context) => RegisterPage()),
                           );
                         },
                         child: Text(
@@ -219,7 +204,7 @@ class HomePageState extends State<HomePage> {
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ),
-                      Text(_responseMessage)
+                      Text(_responseMessage),
                     ],
                   ),
                 ],

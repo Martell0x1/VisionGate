@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../services/api_service.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  final String email;
+  const SettingsPage({super.key , required this.email});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -9,22 +11,37 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   // Mock user data - replace this with your actual data source
-  final Map<String, dynamic> userData = const {
-    'id': 16,
-    'first_name': 'yahya',
-    'last_name': 'zakaria',
-    'address': 'fdfdfdfdfd',
-    'phone': '1097741206',
-    'dob': '2000-09-01',
-    'email': 'y@gmail.com',
-    'password_hash':
-        '\$2b\$10\$HHahiFhV/d3u44tFVBEsN.Unm34krbcZBpUdtX7.nKW3tBEqwQJWK',
-    'NAID': '30505200202197',
-  };
+  Map<String, dynamic>? userData = {};
+  bool _loading = true;
 
   List<Map<String, String>> _vehicles = []; // List to hold vehicle data
 
   @override
+  void initState() {
+    super.initState();
+    _fetchUser();
+  }
+
+  Future<void> _fetchUser() async {
+    final response = await ApiService().getUserByEmail(widget.email);
+
+    setState(() {
+      _loading = false;
+
+      if (response.success) {
+        userData = response.data;
+        print("✅ User data loaded successfully: $userData");
+      } else {
+        userData = null;
+        print("❌ Failed to load user data for email: ${widget.email}");
+        print("Response: ${response.message ?? response.data}");
+      }
+    });
+  }
+
+
+
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -32,26 +49,30 @@ class _SettingsPageState extends State<SettingsPage> {
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildProfileHeader(),
-            const SizedBox(height: 24),
-            _buildSectionTitle('Personal Information'),
-            _buildInfoCard(),
-            const SizedBox(height: 24),
-            _buildSectionTitle('Cars'),
-            _cars(), // Display cars here
-            _buildSectionTitle('Account Settings'),
-            _buildSettingsCards(),
-            const SizedBox(height: 24),
-            _buildSectionTitle('Actions'),
-            _buildActionButtons(context),
-          ],
-        ),
-      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : userData == null
+              ? const Center(child: Text("❌ Failed to load user data"))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildProfileHeader(),
+                      const SizedBox(height: 24),
+                      _buildSectionTitle('Personal Information'),
+                      _buildInfoCard(),
+                      const SizedBox(height: 24),
+                      _buildSectionTitle('Cars'),
+                      _cars(),
+                      _buildSectionTitle('Account Settings'),
+                      _buildSettingsCards(),
+                      const SizedBox(height: 24),
+                      _buildSectionTitle('Actions'),
+                      _buildActionButtons(context),
+                    ],
+                  ),
+                ),
     );
   }
 
@@ -243,6 +264,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   // Helper functions for profile and section titles
   Widget _buildProfileHeader() {
+    if (userData == null) return const Center(child: Text("❌ No user data"));
+
+    final firstName = userData?['first_name'] ?? '';
+    final lastName  = userData?['last_name'] ?? '';
+    final email     = userData?['email'] ?? '';
+
     return Center(
       child: Column(
         children: [
@@ -250,18 +277,17 @@ class _SettingsPageState extends State<SettingsPage> {
             radius: 40,
             backgroundColor: Colors.blue.shade100,
             child: Text(
-              '${userData['first_name'][0]}${userData['last_name'][0]}'.toUpperCase(),
+              '${firstName.isNotEmpty ? firstName[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'.toUpperCase(),
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
             ),
           ),
           const SizedBox(height: 16),
-          Text('${userData['first_name']} ${userData['last_name']}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          Text(userData['email'], style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
+          Text('$firstName $lastName', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          Text(email, style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
         ],
       ),
     );
   }
-
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -270,27 +296,28 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildInfoCard() {
+    if (userData == null) return const SizedBox();
     return Card(
       elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            _buildInfoRow('First Name', userData['first_name']),
+            _buildInfoRow('First Name', userData!['first_name']),
             const Divider(),
-            _buildInfoRow('Last Name', userData['last_name']),
+            _buildInfoRow('Last Name', userData!['last_name']),
             const Divider(),
-            _buildInfoRow('Email', userData['email']),
+            _buildInfoRow('Email', userData!['email']),
             const Divider(),
-            _buildInfoRow('Phone', userData['phone']),
+            _buildInfoRow('Phone', userData!['phone'] ?? ''),
             const Divider(),
-            _buildInfoRow('Address', userData['address']),
+            _buildInfoRow('Address', userData!['address'] ?? ''),
             const Divider(),
-            _buildInfoRow('Date of Birth', userData['dob']),
+            _buildInfoRow('Date of Birth', userData!['dob'] ?? ''),
             const Divider(),
-            _buildInfoRow('National ID', userData['NAID']),
+            _buildInfoRow('National ID', userData!['NAID'] ?? ''),
             const Divider(),
-            _buildInfoRow('User ID', userData['id'].toString()),
+            _buildInfoRow('User ID', userData!['user_id'].toString()),
           ],
         ),
       ),

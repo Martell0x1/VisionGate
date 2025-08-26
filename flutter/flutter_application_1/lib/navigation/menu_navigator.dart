@@ -1,10 +1,9 @@
-import 'package:vision_gate/Screens/plans_detail_page.dart';
+import 'package:vision_gate/screens/plans_detail_page.dart';
 import 'package:flutter/material.dart';
 import '../screens/services_page.dart';
 import '../screens/support_page.dart';
 import '../screens/settings_page.dart';
-import '../Screens/Location_Page .dart';
-
+import '../screens/location_page.dart';
 class AppNavigator {
   // Quick Access
   static void goToServices(BuildContext context) {
@@ -21,10 +20,10 @@ class AppNavigator {
     );
   }
 
-  static void goToSettings(BuildContext context) {
+  static void goToSettings(BuildContext context , String email) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const SettingsPage()),
+      MaterialPageRoute(builder: (context) => SettingsPage(email: email)),
     );
   }
 
