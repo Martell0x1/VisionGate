@@ -1,0 +1,7 @@
+/**/node_modules
+/**/.env
+/**/dist
+/**/.gradle
+!/**/app/build/outputs/apk/**/*.apk
+/**/build
+/**/.kotlin
