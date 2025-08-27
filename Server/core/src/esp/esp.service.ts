@@ -4,12 +4,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { CarsService } from 'src/car/car.service';
 import { MlService } from 'src/ml/ml.service';
+import { MqttService } from 'src/mqtt/mqtt.service';
 
 @Injectable()
 export class espDetectionService {
   constructor(
     private readonly mlService: MlService,
     private readonly carService: CarsService,
+    private readonly mqttService: MqttService,
   ) {}
   private readonly AllowedExts = [
     '.apng',
@@ -37,6 +39,10 @@ export class espDetectionService {
   public async getData(licensePlate: string) {
     const user = await this.carService.findUserByLicensePlate(licensePlate);
     const car = await this.carService.findCarWithLicensePlate(licensePlate);
+    if (!car) {
+      console.log('no fucking car');
+    }
+    console.log(car);
     return { user, car };
   }
 
@@ -67,5 +73,10 @@ export class espDetectionService {
       message: 'File uploaded',
       filename: newFilename,
     };
+  }
+  async notifyDetection(plate: string) {
+    const topic = 'esp/servo';
+    const message = JSON.stringify({ plate, timestamp: Date.now() });
+    this.mqttService.publish(topic, message);
   }
 }

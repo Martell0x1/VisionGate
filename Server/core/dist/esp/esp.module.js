@@ -14,6 +14,7 @@ const platform_express_1 = require("@nestjs/platform-express");
 const multer_1 = require("multer");
 const ml_module_1 = require("../ml/ml.module");
 const car_module_1 = require("../car/car.module");
+const mqtt_module_1 = require("../mqtt/mqtt.module");
 let espModule = class espModule {
 };
 exports.espModule = espModule;
@@ -25,6 +26,7 @@ exports.espModule = espModule = __decorate([
             }),
             ml_module_1.MlModule,
             car_module_1.CarModule,
+            mqtt_module_1.MqttModule,
         ],
         controllers: [esp_controller_1.espController],
         providers: [esp_service_1.espDetectionService],

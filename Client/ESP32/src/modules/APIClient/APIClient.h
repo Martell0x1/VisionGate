@@ -44,6 +44,23 @@ public:
         http.end();
         return payload;
     }
+
+    bool connect() {
+        HTTPClient http;
+        String url = String(baseUrl);
+        http.begin(url); 
+
+        int httpCode = http.GET();
+        http.end();
+
+        if (httpCode > 0) {
+            Serial.printf("Connection OK, HTTP code: %d\n", httpCode);
+            return true;
+        } else {
+            Serial.printf("Connection FAILED, error: %d\n", httpCode);
+            return false;
+        }
+    }
 };
 
 #endif

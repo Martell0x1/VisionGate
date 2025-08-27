@@ -35,10 +35,11 @@ let CarsService = class CarsService {
     }
     async findCarWithLicensePlate(licensePlate) {
         const car = await this.carRepo.findOne({
-            where: { license_plate: licensePlate }
+            where: { license_plate: licensePlate },
         });
-        if (!car)
-            throw new common_1.NotFoundException(`Car with license plate ${licensePlate} not found`);
+        if (!car) {
+            console.log(`Car with license plate ${licensePlate} not found`);
+        }
         return car;
     }
     async findUserByLicensePlate(licensePlate) {
@@ -46,9 +47,9 @@ let CarsService = class CarsService {
             where: { license_plate: licensePlate },
         });
         if (!car) {
-            throw new common_1.NotFoundException(`Car with license plate ${licensePlate} not found`);
+            console.log(`user doesn't found`);
         }
-        return car.user_id;
+        return car;
     }
     async getUserCars(id) {
         const cars = await this.carRepo.find({

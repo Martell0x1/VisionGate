@@ -5,8 +5,8 @@ export declare class CarsService {
     constructor(carRepo: Repository<Car>);
     findAll(): Promise<Car[]>;
     findOne(license_plate: string): Promise<Car>;
-    findCarWithLicensePlate(licensePlate: string): Promise<Car>;
-    findUserByLicensePlate(licensePlate: string): Promise<number>;
+    findCarWithLicensePlate(licensePlate: string): Promise<Car | null>;
+    findUserByLicensePlate(licensePlate: string): Promise<Car | null>;
     getUserCars(id: number): Promise<Car[]>;
     create(carData: Partial<Car>): Promise<Car>;
     update(car_id: string, updateData: Partial<Car>): Promise<Car>;

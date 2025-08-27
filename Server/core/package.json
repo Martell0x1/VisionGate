@@ -32,6 +32,7 @@
     "@types/multer": "^2.0.0",
     "bcrypt": "^6.0.0",
     "class-validator": "^0.14.2",
+    "mqtt": "^5.14.0",
     "multer": "^2.0.2",
     "passport-jwt": "^4.0.1",
     "pg": "^8.16.3",

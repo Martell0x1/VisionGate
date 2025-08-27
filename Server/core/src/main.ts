@@ -15,7 +15,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api_docs', app, document);
-  
+
   // To solve error of connection of flutter app.
   app.enableCors({
     origin: '*', // Allows all origins (for development purposes)

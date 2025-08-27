@@ -10,6 +10,7 @@ import { CarModule } from './car/car.module';
 import { PlanModule } from './plan/plan.module';
 import { AuthModule } from './auth/auth.module';
 import { MlModule } from './ml/ml.module';
+import { MqttModule } from './mqtt/mqtt.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MlModule } from './ml/ml.module';
     PlanModule,
     AuthModule,
     MlModule,
+    MqttModule,
   ],
   controllers: [AppController, DatabaseConfigController],
   providers: [AppService],

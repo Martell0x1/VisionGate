@@ -1,14 +1,16 @@
 import { CarsService } from 'src/car/car.service';
 import { MlService } from 'src/ml/ml.service';
+import { MqttService } from 'src/mqtt/mqtt.service';
 export declare class espDetectionService {
     private readonly mlService;
     private readonly carService;
-    constructor(mlService: MlService, carService: CarsService);
+    private readonly mqttService;
+    constructor(mlService: MlService, carService: CarsService, mqttService: MqttService);
     private readonly AllowedExts;
     processFile(file: Express.Multer.File): Promise<any>;
     getData(licensePlate: string): Promise<{
-        user: number;
-        car: import("../car/entities/car.entity").Car;
+        user: import("../car/entities/car.entity").Car | null;
+        car: import("../car/entities/car.entity").Car | null;
     }>;
     uploadFile(file: Express.Multer.File): Promise<{
         status: string;
@@ -26,4 +28,5 @@ export declare class espDetectionService {
         message: string;
         filename: string;
     }>;
+    notifyDetection(plate: string): Promise<void>;
 }

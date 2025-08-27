@@ -5,6 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage, memoryStorage } from 'multer';
 import { MlModule } from 'src/ml/ml.module';
 import { CarModule } from 'src/car/car.module';
+import { MqttModule } from 'src/mqtt/mqtt.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CarModule } from 'src/car/car.module';
     }),
     MlModule,
     CarModule,
+    MqttModule,
   ],
   controllers: [espController],
   providers: [espDetectionService],

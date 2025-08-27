@@ -19,6 +19,7 @@ const car_module_1 = require("./car/car.module");
 const plan_module_1 = require("./plan/plan.module");
 const auth_module_1 = require("./auth/auth.module");
 const ml_module_1 = require("./ml/ml.module");
+const mqtt_module_1 = require("./mqtt/mqtt.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -36,6 +37,7 @@ exports.AppModule = AppModule = __decorate([
             plan_module_1.PlanModule,
             auth_module_1.AuthModule,
             ml_module_1.MlModule,
+            mqtt_module_1.MqttModule,
         ],
         controllers: [app_controller_1.AppController, databaseConfig_controller_1.DatabaseConfigController],
         providers: [app_service_1.AppService],

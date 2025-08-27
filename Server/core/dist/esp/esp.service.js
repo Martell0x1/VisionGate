@@ -48,12 +48,15 @@ const fs_1 = require("fs");
 const path = __importStar(require("path"));
 const car_service_1 = require("../car/car.service");
 const ml_service_1 = require("../ml/ml.service");
+const mqtt_service_1 = require("../mqtt/mqtt.service");
 let espDetectionService = class espDetectionService {
     mlService;
     carService;
-    constructor(mlService, carService) {
+    mqttService;
+    constructor(mlService, carService, mqttService) {
         this.mlService = mlService;
         this.carService = carService;
+        this.mqttService = mqttService;
     }
     AllowedExts = [
         '.apng',
@@ -80,6 +83,10 @@ let espDetectionService = class espDetectionService {
     async getData(licensePlate) {
         const user = await this.carService.findUserByLicensePlate(licensePlate);
         const car = await this.carService.findCarWithLicensePlate(licensePlate);
+        if (!car) {
+            console.log('no fucking car');
+        }
+        console.log(car);
         return { user, car };
     }
     async uploadFile(file) {
@@ -103,11 +110,17 @@ let espDetectionService = class espDetectionService {
             filename: newFilename,
         };
     }
+    async notifyDetection(plate) {
+        const topic = 'esp/servo';
+        const message = JSON.stringify({ plate, timestamp: Date.now() });
+        this.mqttService.publish(topic, message);
+    }
 };
 exports.espDetectionService = espDetectionService;
 exports.espDetectionService = espDetectionService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [ml_service_1.MlService,
-        car_service_1.CarsService])
+        car_service_1.CarsService,
+        mqtt_service_1.MqttService])
 ], espDetectionService);
 //# sourceMappingURL=esp.service.js.map
