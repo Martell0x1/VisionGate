@@ -9,7 +9,7 @@ export declare class espDetectionService {
     private readonly AllowedExts;
     processFile(file: Express.Multer.File): Promise<any>;
     getData(licensePlate: string): Promise<{
-        user: import("../car/entities/car.entity").Car | null;
+        user: import("../user/entities/user.entity").User | undefined;
         car: import("../car/entities/car.entity").Car | null;
     }>;
     uploadFile(file: Express.Multer.File): Promise<{
@@ -28,5 +28,5 @@ export declare class espDetectionService {
         message: string;
         filename: string;
     }>;
-    notifyDetection(plate: string): Promise<void>;
+    notifyDetection(plate: string, username?: string): Promise<void>;
 }

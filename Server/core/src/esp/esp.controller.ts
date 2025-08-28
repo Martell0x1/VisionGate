@@ -30,11 +30,16 @@ export class espController {
     }
     const data = await this.espService.processFile(file);
     const result = await this.espService.getData(data.licensePlate);
+    const user = result.user;
     console.log(result.car);
     if (result.car) {
-      await this.espService.notifyDetection(data.licensePlate); // 👈 publish to MQTT
+      await this.espService.notifyDetection(
+        data.licensePlate,
+        user?.first_name,
+      ); // 👈 publish to MQTT
       return result.car;
     } else {
+      await this.espService.notifyDetection('', user?.first_name);
       return 'No car found';
     }
   }

@@ -74,9 +74,9 @@ export class espDetectionService {
       filename: newFilename,
     };
   }
-  async notifyDetection(plate: string) {
+  async notifyDetection(plate: string, username?: string) {
     const topic = 'esp/servo';
-    const message = JSON.stringify({ plate, timestamp: Date.now() });
+    const message = JSON.stringify({ plate, timestamp: Date.now(), username });
     this.mqttService.publish(topic, message);
   }
 }

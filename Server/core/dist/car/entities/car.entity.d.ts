@@ -1,3 +1,4 @@
+import { User } from '../../user/entities/user.entity';
 export declare class Car {
     license_plate: string;
     company: string;
@@ -5,4 +6,5 @@ export declare class Car {
     subscription_start: Date;
     user_id: number;
     plan_id: number;
+    user: User;
 }

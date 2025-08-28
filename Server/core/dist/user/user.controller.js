@@ -23,6 +23,9 @@ let UserController = class UserController {
     findUserByEmail(body) {
         return this.userService.findUserByEmail(body.email);
     }
+    findUserCars(body) {
+        return this.userService.findUserCars(+body.userId);
+    }
 };
 exports.UserController = UserController;
 __decorate([
@@ -32,6 +35,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "findUserByEmail", null);
+__decorate([
+    (0, common_1.Get)('test'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UserController.prototype, "findUserCars", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('user'),
     __metadata("design:paramtypes", [user_service_1.UserService])

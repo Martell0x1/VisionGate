@@ -32,6 +32,13 @@ let UserService = class UserService {
         const user = this.userRepository.create(userData);
         return this.userRepository.save(user);
     }
+    async findUserCars(userId) {
+        const user = await this.userRepository.findOne({
+            where: { user_id: userId },
+            relations: ['cars'],
+        });
+        return user?.cars || [];
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

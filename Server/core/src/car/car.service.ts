@@ -41,13 +41,15 @@ export class CarsService {
   async findUserByLicensePlate(licensePlate: string) {
     const car = await this.carRepo.findOne({
       where: { license_plate: licensePlate },
+      relationLoadStrategy: 'join',
+      relations: ['user'],
     });
 
     if (!car) {
       console.log(`user doesn't found`);
     }
 
-    return car;
+    return car?.user;
   }
 
   async getUserCars(id: number) {

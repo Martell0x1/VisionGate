@@ -33,6 +33,6 @@ export class User {
   @Column({ length: 250 })
   password: string;
 
-  @OneToMany(() => Car, (car) => car.user_id)
+  @OneToMany(() => Car, (car) => car.user)
   cars: Car[];
 }

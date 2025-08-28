@@ -1,20 +1,33 @@
 #include <Arduino.h>
 #include <WiFi.h>
+#include <LiquidCrystal_I2C.h>
+#include <ArduinoJson.h>
+
 
 #include "config/WifiConfig.h"
 #include "modules/APIClient/APIClient.h"
 #include "modules/IRSensor/IRSensor.h"
 #include "modules/LED/LED.h"
 #include "modules/ServoMoto/ServoMotor.h"
+#include "modules/LCD/LCDImpl.h"
 #include "modules/Mqtt/Mqtt.h"
+#include "modules/LDR/LDR.h"
+#include "modules/Buzzer/Buzzer.h"
 
 WifiConfig wifiConfig("Martell", "MarwanMartell@04");
 APIClient apiClient("http://192.168.1.3:8080");
 IRSensor irSensor(19);
-LEDModule WaitingLED(21, WAITING);
-LEDModule DeniedLED(22, DENIED);
+LEDModule WaitingLED(5, WAITING);
+Buzzer buzzer(33);
+LDR ldr(34);
+
+LEDModule DeniedLED(18, DENIED);
 LEDModule ApprovedLED(23, APPROVED);
 ServoMotor servoMotor(13);
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+LCDImpl lcdImpl(lcd);
+
 MQttClient mqttClient("5965aa9309824cb48daa5da0a2083f47.s1.eu.hivemq.cloud", 8883);
 
 
@@ -27,13 +40,40 @@ void onMqttMessage(String topic, String payload) {
   Serial.printf("📥 MQTT Message on %s: %s\n", topic.c_str(), payload.c_str());
 
   if (topic == "esp/servo") {
-    ApprovedLED.turnOn();   // 🟢 approved
-    WaitingLED.turnOff();   // 🟡 off
-    DeniedLED.turnOff();    // 🔴 off
 
-    servoMotor.setAngle(180);   // open gate
-    servoOpen = true;
-    servoOpenedAt = millis();  // remember when opened
+    // Parse JSON payload
+    StaticJsonDocument<256> doc;   // adjust size if payload grows
+    DeserializationError error = deserializeJson(doc, payload);
+
+    if (!error) {
+      const char* plate = doc["plate"];  
+      const char* username = doc["username"];     // get plate string
+      long timestamp = doc["timestamp"];      // get timestamp
+
+
+      if(!plate || strlen(plate) == 0) {
+        DeniedLED.turnOn();    
+        lcdImpl.clear();
+        lcdImpl.print("Plate Not Found");
+        buzzer.buzz(500);
+      } else {
+        ApprovedLED.turnOn();   
+        WaitingLED.turnOff();   
+        DeniedLED.turnOff();    
+        lcdImpl.clear();
+        lcdImpl.print("Hello: ");
+        lcdImpl.print(username);   // first line: plate
+        servoMotor.setAngle(180);   // open gate
+        servoOpen = true;
+        servoOpenedAt = millis();   // remember when opened
+      }
+
+      // lcdImpl.clear();
+      // lcdImpl.print("Time: ");
+      // lcdImpl.print(timestamp.toString());
+    } else {
+      Serial.println("❌ Failed to parse JSON!");
+    }
   }
 }
 void setup() {
@@ -50,6 +90,10 @@ void setup() {
     }
     onMqttMessage(String(topic), message);  // call your handler
   });
+  lcdImpl.begin();
+  lcdImpl.clear();
+  lcdImpl.print("System Ready");
+
   mqttClient.connect();
   apiClient.connect();
 }
@@ -86,5 +130,54 @@ void loop() {
     servoOpen = false;         // reset state
     Serial.println("⏱️ Servo auto-closed after 15s");
   }
+  
+  int t = ldr.trigger();
+  if (t) {
+    // Serial.println("LDR Triggered!");
+    delay(200);
+    WaitingLED.turnOn();
+  }
+  else{
+    delay(200);
+    WaitingLED.turnOff();
+  }
+  // Serial.println(ldr.read());
+
 }
 
+/*********
+  Rui Santos
+  Complete project details at https://randomnerdtutorials.com  
+*********/
+
+// #include <LiquidCrystal_I2C.h>
+
+// // set the LCD number of columns and rows
+// int lcdColumns = 16;
+// int lcdRows = 2;
+
+// // set LCD address, number of columns and rows
+// // if you don't know your display address, run an I2C scanner sketch
+// LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);  
+
+// void setup(){
+//   // initialize LCD
+//   lcd.init();
+//   // turn on LCD backlight                      
+//   lcd.backlight();
+// }
+
+// void loop(){
+//   // set cursor to first column, first row
+//   lcd.setCursor(0, 0);
+//   // print message
+//   lcd.print("Hello, World!");
+//   delay(1000);
+//   // clears the display to print new message
+//   lcd.clear();
+//   // set cursor to first column, second row
+//   lcd.setCursor(0,1);
+//   lcd.print("Hello, World!");
+//   delay(1000);
+//   lcd.clear(); 
+// }

@@ -13,6 +13,9 @@
                 "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/HTTPClient/src",
                 "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                 "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
+                "/home/martell0x1/gits/IntelliGarage/Client/ESP32/.pio/libdeps/esp32doit-devkit-v1/ArduinoJson/src",
+                "/home/martell0x1/gits/IntelliGarage/Client/ESP32/.pio/libdeps/esp32doit-devkit-v1/LiquidCrystal_I2C",
+                "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                 "/home/martell0x1/gits/IntelliGarage/Client/ESP32/.pio/libdeps/esp32doit-devkit-v1/PubSubClient/src",
                 "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                 "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",
@@ -239,7 +242,6 @@
                 "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/Update/src",
                 "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
                 "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
-                "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                 ""
             ],
             "browse": {
@@ -250,6 +252,9 @@
                     "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/HTTPClient/src",
                     "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                     "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
+                    "/home/martell0x1/gits/IntelliGarage/Client/ESP32/.pio/libdeps/esp32doit-devkit-v1/ArduinoJson/src",
+                    "/home/martell0x1/gits/IntelliGarage/Client/ESP32/.pio/libdeps/esp32doit-devkit-v1/LiquidCrystal_I2C",
+                    "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                     "/home/martell0x1/gits/IntelliGarage/Client/ESP32/.pio/libdeps/esp32doit-devkit-v1/PubSubClient/src",
                     "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/newlib/platform_include",
                     "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/freertos/include",
@@ -476,7 +481,6 @@
                     "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/Update/src",
                     "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
                     "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
-                    "/home/martell0x1/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                     ""
                 ]
             },
