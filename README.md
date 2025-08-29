@@ -1,85 +1,160 @@
-# VISION Gate – End-to-End IoT & AI Solution
+# VISION Gate – End-to-End IoT & AI Smart Parking Solution  
 
-## Overview
-Developed a **smart parking system** where users register their data through the **app**. When they approach the garage, the camera scans the car’s license plate and checks it against the system for **secure entry**.
-
----
-
-## Backend & Hardware
-Designed and implemented the full end-to-end system following clean code and software engineering best principles — including a well-structured software architecture with a **NestJS backend**, **AI model integration**, and a **Flutter mobile application**, as well as fully developing the **ESP32 firmware** to manage sensors, servo motor control, and LED feedback, while establishing **MQTT-based real-time communication** between the backend, the ESP device, and the user application, complemented with a custom camera detection app and a clear architectural design for seamless integration.
-
-Dockorized backend component and pushed the image to docker hub - create Azure container service and linked it to docker hub image outcomes: - fully operated backend component remotely.
+<p align="center">
+  <img src="assets/Gate1.png" alt="VISION Gate Logo" width="200"/>
+</p>
 
 ---
 
-## Wiring & Electronics
-Designed and connected circuits with sensors and actuators.  
-**Components Used:**
-
-1. **LDR (Light Dependent Resistor):** for light sensing.  
-2. **IR Sensor:** for object detection.  
-3. **Buzzer:** for alerts/notifications.  
-4. **Servo Motor:** for mechanical movement (e.g., opening/closing).  
-5. **LCD:** for printing status to the user.  
-6. **LEDs (3):** for status indicators and feedback.  
+## Overview  
+VISION Gate is a **smart parking system** where users register via the mobile app.  
+When approaching the garage, the **camera scans the license plate** and checks it against the system for **secure, automated entry**.  
 
 ---
 
-## IoT & Communication
-- Integrated **MQTT** for real-time communication and remote control.  
-- Implemented API Client for RESTful interaction with backend services.  
+## System Architecture  
+
+<p align="center">
+  <img src="assets/system.jpeg" alt="System Architecture" width="700"/>
+</p>  
+
+### Upcoming System Update (Expected)
+<p align="center">
+  <img src="assets/system-expect.jpeg" alt="Expected Architecture Update" width="700"/>
+</p>
 
 ---
 
-## Software & Architecture
-- Developed with **Platform IO**, structuring the project into modules (peripheral classes like IR Sensor, LED, Servomotor, MQTT, etc.).  
-- Applied modern software development principles:  
-  - **Dependency Injection (DI):** decoupled components for easier testing and flexibility.  
-  - **Single Responsibility Principle (SRP):** each module/class handles only one responsibility.  
-- Achieved clean, maintainable, and reusable code.  
+## Backend & Hardware  
+
+- **NestJS Backend** with clean software architecture.  
+- **AI Model Integration** for license plate detection.  
+- **Flutter Mobile Application** for user interaction.  
+- **ESP32 Firmware** to manage sensors, servos, and LEDs.  
+- **MQTT-based real-time communication** between backend, ESP32, and mobile app.  
+- **Custom camera detection app** integrated with backend APIs.  
+- **Dockerized backend**, deployed on Azure Container Service with remote operation.  
+
+Backend on Azure:  
+<p align="center">
+  <img src="assets/Hosted on Azure.jpg" alt="Hosted on Azure" width="600"/>
+</p>
 
 ---
 
-## Database
-A Schema is the first step in organizing your database:  
-- Acts like a namespace that groups related tables, views, and functions.  
-- Helps keep the database structured and manageable.  
-- Allows separation of different parts of the application (Cars, Plans, Users).  
+## Wiring & Electronics  
 
-**Users Table**: first_name, last_name, address, phone, DOB, user_id, email, image_link, password  
-**Cars Table**: car_id, company, car_model, user_id, plan_id, subscription_start  
-**Plans Table**: plan_id, value, unit, price  
+**Designed and connected circuits with sensors and actuators.**  
+
+### Components Used:
+- **LDR (Light Dependent Resistor):** light sensing  
+-  **IR Sensor:** object detection  
+-  **Buzzer:** alerts/notifications  
+-  **Servo Motor:** mechanical movement (garage gate control)  
+-  **LCD:** status messages  
+-  **LEDs (x3):** system feedback indicators  
+
+Circuit Prototype:  
+<p align="center">
+  <img src="assets/Wokowi Final Project.png" alt="Hardware Wiring" width="600"/>
+</p>
 
 ---
 
-## AI Model
+##  IoT & Communication  
+
+- Integrated **MQTT** for real-time communication.  
+- Implemented **API Client** for RESTful interaction with backend.  
+- Achieved seamless communication between **ESP32 → Backend → Mobile App**.  
+
+---
+
+##  Software & Architecture  
+
+- Developed with **Platform IO**, structured in modules (peripherals as classes).  
+- **Dependency Injection (DI):** for flexibility and testability.  
+- **Single Responsibility Principle (SRP):** each module has one job.  
+- Produced **clean, maintainable, reusable code**.  
+
+API & Communication Demo:  
+<p align="center">
+  <img src="assets/Json_file_Flask.png" alt="Flask API" width="600"/>
+</p>
+
+---
+
+##  Database Design  
+
+📌 Organized into **Schemas** for clarity and separation of concerns.  
+
+- **Users Table** → first_name, last_name, address, phone, DOB, user_id, email, image_link, password  
+- **Cars Table** → car_id, company, car_model, user_id, plan_id, subscription_start  
+- **Plans Table** → plan_id, value, unit, price  
+
+ Database Diagrams:  
+<p align="center">
+  <img src="assets/Conceptual schema.jpg" alt="Conceptual Schema" width="600"/>
+</p>  
+
+<p align="center">
+  <img src="assets/Logical schema.jpg" alt="Logical Schema" width="600"/>
+</p>
+
+---
+
+##  AI Model  
+
 **Objectives:**  
-- Detect license plates from vehicle images.  
-- Extract plate numbers accurately as text.  
-- Build an API for easy integration with apps.  
+- Detect license plates from images.  
+- Extract plate numbers as text.  
+- Provide API for integration.  
 
-**Tools & Technologies:**  
-- YOLO → License plate detection  
-- OpenCV → Image preprocessing  
-- EasyOCR → Text recognition  
-- Flask API → Receive images & return text  
-- Python → Development  
+**Tools & Tech:**  
+-  YOLO → plate detection  
+-  OpenCV → image preprocessing  
+- EasyOCR → text recognition  
+-  Flask API → serve predictions  
 
-**System Architecture:**  
-1. Receive vehicle image (via API)  
+**Pipeline:**  
+1. API receives image  
 2. YOLO detects bounding box  
-3. OpenCV crops the license plate region  
+3. OpenCV crops plate  
 4. EasyOCR extracts text  
-5. Flask API returns license number  
+5. Flask returns license number  
 
-> YOLO finds the plate → OpenCV prepares the plate → EasyOCR reads the text.
+ Detection Examples:  
+<p align="center">
+  <img src="assets/Yolo_detect.png" alt="YOLO Detection" width="400"/>
+  <img src="assets/Yolo_detect2.png" alt="YOLO Detection 2" width="400"/>
+</p>
 
 ---
 
-## Flutter Mobile Application
-1. Created the initial design using **Flutter Flow**.  
-2. Added an animation to the loading screen to make the app feel more realistic.  
-3. Built 11 pages, and allowed the user to choose between light or dark mode starting from the login page, applied across the entire app.  
-4. Implemented the logic and navigation between pages.  
-5. Integrated the app with the backend using APIs & performed testing to ensure the application runs smoothly.
+##  Flutter Mobile Application  
 
+- Designed using **FlutterFlow**.  
+- **Dark/Light Mode** support starting from login.  
+- Built **11 pages** with smooth navigation.  
+- Added **animations** to enhance UX.  
+- Integrated with backend APIs and tested thoroughly.  
+
+---
+
+##  Testing & Extras  
+
+- Test scripts → [`test.sql`](test.sql)  
+- Database dump and migrations included.  
+
+---
+
+##  Summary  
+
+VISION Gate is a **fully integrated IoT + AI + Cloud system**, combining:  
+-  IoT firmware (ESP32 + sensors + actuators)  
+-  Cloud backend (NestJS, Docker, Azure)  
+-  AI-driven detection (YOLO + OpenCV + EasyOCR)  
+-  Mobile App (Flutter)  
+
+A **real-world, production-ready smart parking solution**.  
+
+---
