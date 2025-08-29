@@ -6,14 +6,6 @@
 
 ---
 <p align="center">
-  ⭐️ If you like this project, don’t forget to give it a **star** on GitHub! ⭐️
-</p>
-
----
-
-## 🛠️ Technologies Used  
-
-<p align="center">
   <!-- Backend -->
   <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" />
   <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
@@ -42,6 +34,13 @@
   <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" />
   <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" />
 </p>
+
+<p align="center">
+  ⭐️ If you like this project, don’t forget to give it a **star** on GitHub! ⭐️
+</p>
+
+---
+
 
 
 ## Overview  
