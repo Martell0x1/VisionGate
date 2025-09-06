@@ -2,7 +2,12 @@
 
 <p align="center">
   <img src="assets/Gate1.png" alt="VISION Gate Logo" width="200"/>
+</p><br>
+<p align="center">
+<img src="https://visitor-badge.laobi.icu/badge?page_id=martell0x1.VisionGate&left_color=black&right_color=blue" alt="visitors"/>
 </p>
+
+
 
 ---
 <p align="center">
