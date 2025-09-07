@@ -61,7 +61,7 @@ When approaching the garage, the **camera scans the license plate** and checks i
 ### Upcoming System Update (Expected)
 
 <p align="center">
-  <img src="assets/system-expect.jpeg" alt="Expected Architecture Update" width="700"/>
+  <img src="assets/expected-system.jpeg" alt="Expected Architecture Update" width="700"/>
 </p>
 
 ---
