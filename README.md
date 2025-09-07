@@ -200,6 +200,7 @@ Detection Examples:
     <img src="assets/flutter9.jpeg" alt="Flask API" width="600"/><br>
     <img src="assets/flutter10.jpeg" alt="Flask API" width="600"/><br>
     <img src="assets/flutter11.jpeg" alt="Flask API" width="600"/><br>
+    <img src="assets/flutter12.jpeg" alt="Flask API" width="600"/>
   </p>
 
 ---
