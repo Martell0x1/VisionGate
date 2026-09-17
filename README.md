@@ -45,6 +45,14 @@
 
 ---
 
+## Changelog
+- 17/9/2026 ai model now is small enough to be dockerizable
+```bash
+docker pull mohamedakramzidan/visiongate-server:latest
+
+docker run --name visiongate-server -p 5000:5000 mohamedakramzidan/visiongate-server:latest
+```
+
 ## Overview
 
 VISION Gate is a **smart parking system** where users register via the mobile app.  
