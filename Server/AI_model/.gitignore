@@ -1,0 +1,28 @@
+.venv/
+venv/
+
+__pycache__/
+*.py[cod]
+
+.env
+.env.*
+
+.vscode/
+.idea/
+
+uploads/
+runs/
+logs/
+
+*.ipynb
+.ipynb_checkpoints/
+
+# Models
+*.onnx
+*.onnx.data
+
+# Images
+*.png
+*.jpg
+*.jpeg
+*.webp
