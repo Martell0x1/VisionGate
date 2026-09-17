@@ -46,7 +46,7 @@
 ---
 
 ## Changelog
-- 17/9/2026 ai model now is small enough to be dockerizable
+- 17/9/2026 AI model is now deployed with ONNX and packaged as a production-ready Docker image
 ```bash
 docker pull mohamedakramzidan/visiongate-server:latest
 
