@@ -1,68 +1,149 @@
-import subprocess
 from pathlib import Path
-import cv2
 
-import warnings
-warnings.filterwarnings("ignore")
+import cv2
+import numpy as np
+import onnxruntime as ort
+
 
 class Detector:
-    def __init__(self, yolov9_dir, weights_path, conf=0.5):
-        self.yolov9_dir = Path(yolov9_dir)
-        self.weights_path = Path(weights_path)
+    def __init__(self, model_path, conf=0.4, input_size=640):
+        self.model_path = Path(model_path)
         self.conf = conf
+        self.input_size = input_size
+
+        self.session = ort.InferenceSession(
+            str(self.model_path),
+            providers=["CPUExecutionProvider"]
+        )
+
+        self.input_name = self.session.get_inputs()[0].name
+
+        print("ONNX Providers:", self.session.get_providers())
+        print("Input:", self.input_name)
+
+    def _preprocess(self, image):
+        """
+        Letterbox resize image to 640x640 and convert to YOLO format.
+        """
+        shape = image.shape[:2]  # current shape [height, width]
+        
+        # Scale ratio (new / old)
+        r = min(self.input_size / shape[0], self.input_size / shape[1])
+        
+        new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
+        dw, dh = self.input_size - new_unpad[0], self.input_size - new_unpad[1]  # wh padding
+        
+        dw /= 2  # divide padding into 2 sides
+        dh /= 2
+
+        if shape[::-1] != new_unpad:  # resize
+            img = cv2.resize(image, new_unpad, interpolation=cv2.INTER_LINEAR)
+        else:
+            img = image.copy()
+            
+        top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+        left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
+        
+        img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(114, 114, 114))
+
+        # Convert to RGB, normalize, HWC -> CHW
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = img.astype(np.float32) / 255.0
+        img = np.transpose(img, (2, 0, 1))
+        img = np.expand_dims(img, axis=0)
+
+        return img, r, dw, dh
 
     def detect(self, image_path):
-        """Run YOLOv9 detect.py, read bbox, crop plate using OpenCV."""
-        image_path = Path(image_path)
-        img_name = image_path.stem
+        """
+        Detect license plate and return cropped plate image.
+        """
+        image = cv2.imread(str(image_path))
 
-        # Run YOLO detection with save-txt (no auto-crop)
-        cmd = [
-            "python",
-            str(self.yolov9_dir / "detect.py"),
-            "--weights", str(self.weights_path),
-            "--source", str(image_path),
-            "--conf", str(self.conf),
-            "--save-txt",
-            "--project", str(self.yolov9_dir / "runs"),
-            "--name", "plate_detect",
-            "--exist-ok"
-        ]
-        subprocess.run(cmd, check=True)
-
-        # Find labels file
-        labels_dir = self.yolov9_dir / "runs" / "plate_detect" / "labels"
-        label_file = labels_dir / f"{img_name}.txt"
-        if not label_file.exists():
-            print("No label file found — no detection?")
+        if image is None:
             return None
 
-        # Load original image
-        img = cv2.imread(str(image_path))
-        if img is None:
+        original_h, original_w = image.shape[:2]
+
+        input_tensor, ratio, pad_w, pad_h = self._preprocess(image)
+
+        outputs = self.session.run(
+            None,
+            {self.input_name: input_tensor}
+        )
+
+        predictions = outputs[0]
+
+        # Remove batch dimension -> (5, 8400)
+        predictions = np.squeeze(predictions, axis=0)
+        
+        # Transpose -> (8400, 5)
+        predictions = predictions.T
+
+        if predictions.ndim != 2:
             return None
-        h, w, _ = img.shape
 
-        # Read YOLO format: class cx cy width height (normalized)
-        with open(label_file, "r") as f:
-            line = f.readline().strip()
-            if not line:
-                return None
-            _, cx, cy, bw, bh = map(float, line.split())
+        # Filter by confidence
+        scores = predictions[:, 4]
+        mask = scores > self.conf
+        
+        filtered_preds = predictions[mask]
+        filtered_scores = scores[mask]
+        
+        if len(filtered_preds) == 0:
+            return None
+            
+        # Extract cx, cy, w, h
+        cx = filtered_preds[:, 0]
+        cy = filtered_preds[:, 1]
+        bw = filtered_preds[:, 2]
+        bh = filtered_preds[:, 3]
+        
+        # Convert to top-left x, y for NMSBoxes
+        x1 = cx - bw / 2
+        y1 = cy - bh / 2
+        
+        nms_boxes = np.stack([x1, y1, bw, bh], axis=1).tolist()
+        nms_scores = filtered_scores.tolist()
+        
+        indices = cv2.dnn.NMSBoxes(nms_boxes, nms_scores, score_threshold=self.conf, nms_threshold=0.45)
+        
+        if len(indices) == 0:
+            return None
+            
+        # Get the highest confidence box from NMS
+        idx = indices[0]
+        if isinstance(idx, (list, np.ndarray)):
+            idx = idx[0]
+            
+        best_cx = cx[idx]
+        best_cy = cy[idx]
+        best_w = bw[idx]
+        best_h = bh[idx]
+        
+        # Convert coordinates from 640x640 (padded) back to original image
+        best_cx = (best_cx - pad_w) / ratio
+        best_cy = (best_cy - pad_h) / ratio
+        best_w = best_w / ratio
+        best_h = best_h / ratio
 
-        # Convert to pixel coords
-        x1 = int((cx - bw / 2) * w)
-        y1 = int((cy - bh / 2) * h)
-        x2 = int((cx + bw / 2) * w)
-        y2 = int((cy + bh / 2) * h)
+        x1 = int(best_cx - best_w / 2)
+        y1 = int(best_cy - best_h / 2)
+        x2 = int(best_cx + best_w / 2)
+        y2 = int(best_cy + best_h / 2)
 
-        # Ensure valid bounds
-        x1, y1 = max(0, x1), max(0, y1)
-        x2, y2 = min(w, x2), min(h, y2)
+        # Clamp coordinates
+        x1 = max(0, min(x1, original_w))
+        y1 = max(0, min(y1, original_h))
+        x2 = max(0, min(x2, original_w))
+        y2 = max(0, min(y2, original_h))
 
-        # Crop
-        crop_img = img[y1:y2, x1:x2]
-        crop_path = self.yolov9_dir / "runs" / "plate_detect" / f"{img_name}_crop.jpg"
-        cv2.imwrite(str(crop_path), crop_img)
+        if x2 <= x1 or y2 <= y1:
+            return None
 
-        return str(crop_path)
+        crop = image[y1:y2, x1:x2]
+
+        if crop.size == 0:
+            return None
+
+        return crop
